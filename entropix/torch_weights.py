@@ -30,12 +30,31 @@ class LayerWeights(NamedTuple):
   w3: torch.Tensor
   ffn_norm: torch.Tensor
   attention_norm: torch.Tensor
+  def to(self, device):
+        return LayerWeights(
+            wq=self.wq.to(device),
+            wk=self.wk.to(device),
+            wv=self.wv.to(device),
+            wo=self.wo.to(device),
+            w1=self.w1.to(device),
+            w2=self.w2.to(device),
+            w3=self.w3.to(device),
+            ffn_norm=self.ffn_norm.to(device),
+            attention_norm=self.attention_norm.to(device)
+        )
 
 class XfmrWeights(NamedTuple):
   tok_embeddings: torch.Tensor
   norm: torch.Tensor
   output: torch.Tensor
   layer_weights: List[LayerWeights]
+  def to(self, device):
+     return XfmrWeights(
+        tok_embeddings=self.tok_embeddings.to(device),
+        norm=self.norm.to(device),
+        output=self.output.to(device),
+        layer_weights=[elt.to(device) for elt in self.layer_weights]
+     )
 
 def compare_outputs(torch_output: torch.Tensor, jax_output: jax.Array, atol: float = 1e-5, rtol: float = 1e-8) -> None:
   jax_output_np = np.array(jax_output)
